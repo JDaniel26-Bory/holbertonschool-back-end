@@ -7,19 +7,24 @@ from sys import argv
 if __name__ == "__main__":
     URL = "https://jsonplaceholder.typicode.com/"
 
-    user_id = argv[1]
-    response = requests.get("{}users/{}/todos".format(URL, user_id),
+    EMPLOYEE_ID = argv[1]
+    EMPLOYEE_TODOS = requests.get("{}users/{}/todos".format(URL, EMPLOYEE_ID),
                             params={"_expand": "user"})
 
-    if response.status_code == 200:
-        data = response.json()
-        name = data[0]["user"]["name"]
-        completed_task = [task for task in data if task["completed"]]
+    if EMPLOYEE_TODOS.status_code == 200:
+        data = EMPLOYEE_TODOS.json()
 
-        print("Employee {} is done with tasks({}/{}):".format(
-            name, len(completed_task), len(data)))
-        for task in completed_task:
-            print("\t {}".format(task["title"]))
-
+        EMPLOYEE_NAME = data[0]["user"]["name"]
+        TOTAL_NUMBER_OF_TASKS = len(data)
+        NUMBER_OF_DONE_TASKS = 0
+        TASK_TITLE = []
+        for task in data:
+            if task["completed"]:
+                NUMBER_OF_DONE_TASKS += 1
+                TASK_TITLE.append(task["title"])
+        print(f"Employee {EMPLOYEE_NAME} is done with tasks"
+            f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
+        for title in TASK_TITLE:
+            print("\t ", title)
     else:
-        print("Error: {}".format(response.status_code))
+        print("Error: {}".format(EMPLOYEE_TODOS.status_code))
