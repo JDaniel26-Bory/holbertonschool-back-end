@@ -1,33 +1,34 @@
 #!/usr/bin/python3
-"""Import modules"""
-import requests
+"""Import Modules"""
 import sys
+import requests
+from sys import argv
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"UsageError: python3 {__file__} employee_id(int)")
+
+    EMPLOYEE_ID = argv[1]
+    response_users = requests.get(
+        'https://jsonplaceholder.typicode.com/users/{}'.format(EMPLOYEE_ID))
+    response_todos = requests.get(
+        'https://jsonplaceholder.typicode.com/todos?userId={}'
+        .format(EMPLOYEE_ID))
+
+    if response_users.status_code != 200 or response_todos.status_code != 200:
+        print("Error: {}".format(
+            response_users.status_code or response_todos.status_code))
         sys.exit(1)
 
-    API_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
+    user_data = response_users.json()
+    todos_data = response_todos.json()
 
-    response = requests.get(
-        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
-        params={"_expand": "user"}
-    )
-    data = response.json()
+    employee_name = user_data.get('name')
+    total_tasks = len(todos_data)
+    completed_tasks = sum(1 for todo in todos_data if todo['completed'])
 
-    if not len(data):
-        print("RequestError:", 404)
-        sys.exit(1)
+    print("Employee {} is done with tasks({}/{})".format(
+        employee_name, completed_tasks, total_tasks))
 
-    employee_name = data[0]["user"]["name"]
-    total_tasks = len(data)
-    done_tasks = [task for task in data if task["completed"]]
-    total_done_tasks = len(done_tasks)
-
-    print(f"Employee {employee_name} is done with tasks"
-          f"({total_done_tasks}/{total_tasks}):")
-    for task in done_tasks:
-        print(f"\t {task['title']}")
+    for todo in todos_data:
+        if todo['completed']:
+            print(f"\t{todo['title']}")
