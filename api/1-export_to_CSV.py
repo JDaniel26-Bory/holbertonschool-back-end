@@ -23,4 +23,3 @@ if __name__ == '__main__':
                 [user_id, name, str(task["completed"]),
                  task["title"]]
             )
-
