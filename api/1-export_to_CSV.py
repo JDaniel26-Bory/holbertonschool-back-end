@@ -1,28 +1,20 @@
 #!/usr/bin/python3
-"""import"""
+"""Import Modules"""
 import csv
 import requests
-import sys
+from sys import argv
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(f"missing employee id as argument")
-        sys.exit(1)
+if __name__ == '__main__':
+    url_users = requests.get('https://jsonplaceholder.typicode.com/users')
+    url_todos = requests.get('https://jsonplaceholder.typicode.com/todos')
 
-    URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
-
-    EMPLOYEE_TODOS = requests.get(f"{URL}/users/{EMPLOYEE_ID}/todos",
-                                  params={"_expand": "user"})
-    data = EMPLOYEE_TODOS.json()
-
-    EMPLOYEE_NAME = data[0]["user"]["username"]
-    fileName = f"{EMPLOYEE_ID}.csv"
-
-    with open(fileName, "w", newline="") as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-        for task in data:
-            writer.writerow(
-                [EMPLOYEE_ID, EMPLOYEE_NAME, str(task["completed"]),
-                 task["title"]]
-            )
+    for i in url_users.json():
+        if i['id'] == int(argv[1]):
+            username = i['username']
+    with open(f"{argv[1]}.csv", 'w') as f:
+        for i in url_todos.json():
+            if i['userId'] == int(argv[1]):
+                completed = i['completed']
+                title = i['title']
+                f.write("\"{}\",\"{}\",\"{}\",\"{}\"\n".
+                        format(argv[1], username, completed, title))
