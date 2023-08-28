@@ -403,8 +403,7 @@ venv
 file.json
 
 #file of Holberton
-main_delete.py
-test_params_create
+0-main.py
 
 # CSV   
 2.csv
